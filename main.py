@@ -13,15 +13,26 @@ def insert_to_contact_list():
         raw_names = item[0], item[1], item[2]
         name = ', '.join(raw_names).replace(',', '').split(" ")[:3]
         item[0], item[1], item[2] = name[0], name[1], name[2]
-
-        phonebook[name[0], name[1], name[2]] = {
+        key = name[0], name[1]
+        phonebook2 = {
+            'surname': name[2],
             'organization': item[3],
             'position': item[4],
             'phone': format_phone_number(item[5]),
             'email': item[6]
         }
+        if phonebook.get(key):
+            for value in phonebook.get(key):
+                if item[2] in value.get("surname"):
+                    value.update(
+                        {key: phonebook2.get(key) for key in value if not value.get(key)}
+                    )
+                else:
+                    phonebook.get(key).append(phonebook2)
+        else:
+            phonebook[key] = [phonebook2]
+
     return phonebook
-# new_contact = [y if x="" else x for x,y in zip(contact_1, contact_2)]
 
 
 def format_phone_number(phone):
@@ -30,29 +41,25 @@ def format_phone_number(phone):
     return new_format
 
 
-def create_list(list_):
-    phonebook_new = []
-    for k, v in list_.items():
-        name = k[:2]
-        person = []
-        if name:
-            person.append(', '.join(k[:3]).strip())
-            person.append(v['organization'].strip())
-            person.append(v['position'].strip())
-            person.append(v['phone'].strip())
-            person.append(v['email'].strip())
-
-        # print(phonebook_new.index(name))
-        phonebook_new.append(person)
-    return phonebook_new
-
-
 def write_contacts():
-    phonebook = create_list(insert_to_contact_list())
-    with open("phonebook.csv", "w", encoding="utf-8", newline="\n") as file:
-        datawriter = csv.writer(file, delimiter=",")
-        datawriter.writerow(contact_list[0])
-        datawriter.writerows(phonebook)
+    phonebook = insert_to_contact_list()
+    with open("phonebook.csv", "w", encoding="utf-8", newline="") as file:
+        datawriter = csv.DictWriter(file, fieldnames=contact_list[0], delimiter=",")
+        datawriter.writeheader()
+        for key, value_list in phonebook.items():
+            for value in value_list:
+                datawriter.writerow(
+                    {
+                        "lastname": key[0],
+                        "firstname": key[1],
+                        "surname": value.get("surname"),
+                        "organization": value.get("organization"),
+                        "position": value.get("position"),
+                        "phone": value.get("phone"),
+                        "email": value.get("email"),
+                    }
+                )
 
 
-write_contacts()
+if __name__ == "__main__":
+    write_contacts()
