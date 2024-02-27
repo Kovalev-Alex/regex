@@ -32,12 +32,10 @@ def format_phone_number(phone):
 
 def create_list(list_):
     phonebook_new = []
-    unique_list = set()
     for k, v in list_.items():
         name = k[:2]
         person = []
-        if name not in unique_list:
-            unique_list.add(name)
+        if name:
             person.append(', '.join(k[:3]).strip())
             person.append(v['organization'].strip())
             person.append(v['position'].strip())
@@ -58,7 +56,3 @@ def write_contacts():
 
 
 write_contacts()
-# pprint(insert_to_contact_list())
-# phonebook2 = insert_to_contact_list()
-# print(phonebook2)
-# create_list(insert_to_contact_list())
